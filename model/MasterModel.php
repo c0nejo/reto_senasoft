@@ -80,4 +80,34 @@
 
             return end($account)+1;
         }
+
+        public function CargaSelectGeneral($campo, $tabla){
+            $sql = "SELECT $campo FROM $tabla";
+
+            $consultar = $this->query($sql);
+            $num = mysqli_num_rows($consultar);
+
+            if ($num > 0) {
+                while ($dato = mysqli_fetch_row($consultar)) {
+                    echo "<option value='" . $dato[0] . "'> ".$dato[1]."</option>";
+                }
+            }
+        }
+
+        public function CargaSelected($campo, $tabla, $condicion){
+
+            $sql = "SELECT $campo FROM $tabla";
+
+            $consultar = $this->query($sql);
+            $num = mysqli_num_rows($consultar);
+            if ($num > 0) {
+                while ($dato = mysqli_fetch_row($consultar)) {
+                    if ($dato[0] == $condicion) {
+                        echo "<option selected value='" . $dato[0] . "'>" . $dato[1] . "</option>";
+                    } else {
+                        echo "<option value='" . $dato[0] . "'>" . $dato[1] . "</option>";
+                    }
+                }
+            }
+        }
     }
