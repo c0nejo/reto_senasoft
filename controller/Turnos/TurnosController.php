@@ -15,97 +15,94 @@
             include_once '../view/turnos/home.php';
         }
 
-        public function crearTurnos(){
+        public function crearTurnos()
+        {
             $fecha_inicio = $_POST['fecha_inicio'];
             $fecha_fin = $_POST['fecha_fin'];
-            /* $intensidad_horaria = $_POST['intensidad_horaria'];
-            $esp_id = $_POST['esp_id']; */
+            $intensidad_horaria = $_POST['intensidad_horaria'];
+            $esp_id = $_POST['esp_id'];
             $per_id = $_POST['per_id'];
+
             $fecha_i = new DateTime($fecha_inicio);
             $fecha_f = new DateTime($fecha_fin);
             $dias = $fecha_i->diff($fecha_f)->days;
-            $turnos = array();
-            $horarios = [
-                ["nombre" => "Tarde"],
-                ["nombre" => "Noche"],
-                ["nombre" => "Mañana"],
-            ];
-            /* $matriz = [
-                ["nombre" => "pepe", "id" => 1],
-                ["nombre" => "juan", "id" => 2],
-                ["nombre" => "jose", "id" => 3],
-                ["nombre" => "carlos", "id" => 4],
-            ];
-            $horario = [
-                ["dia" => "lunes"],
-                ["dia" => "Martes"],
-                ["dia" => "Miercoles"],
-                ["dia" => "Jueves"],
-                ["dia" => "Viernes"],
-                ["dia" => "Sabado"],
-                ["dia" => "Domingo"],
-            ]; */
-            echo "<table class='table table-bordered mt-3'>";
+    
+            $horas = ($dias+1)*24;
+            $hora = 6;
+            $turnos["horarios"] = array();
+            $turnos["fechas"] = array();
             for ($i=0; $i < count($per_id); $i++) {
-                $turnos[$per_id[$i]] = [
+                $turnos["horarios"][$per_id[$i]] = [
                     "id_persona" => $per_id[$i],
-                    "horas" => 20,
+                    "horas" => 0,
                     "turnos" => [
 
                     ],
                     "dias_descanso" => 0,
                 ];
-                //Agrega la fecha en el head de la tabla en la primera iteracion
-                if($i == 0){
-                    echo "<tr>";
-                    for ($j=0; $j <= $dias; $j++) {
-                        if ($j != 0) {
-                            echo "<td>";
-                            date_add($fecha_i, date_interval_create_from_date_string("1 day"));
-                            echo "Dia: ".date_format($fecha_i,"d-m-Y");
-                            echo "</td>";
-                        }else{
-                            echo "<td>";
-                            echo " "; 
-                            echo "</td>";
-                        }
+            }
+            $fecha = date("y-m-d",strtotime($fecha_inicio));
+            for($i = 0; $i < $dias; $i++){
+                $fecha = date("y-m-d",strtotime($fecha."+ 1 day"));
+                array_push($turnos["fechas"], [
+                    "fecha" =>  $fecha,
+                ]);
+            }
+            while ($horas > 0) {
+                foreach ($per_id as $per) {
+                    $datos = array();
+                    $datos['persona'] = $per;
+                    $datos['fecha_ingreso'] = $fecha;
+                    $datos['hora_ent'] = $hora;
+                    $horas = $horas-$intensidad_horaria;
+                    $hora = $hora+$intensidad_horaria;
+                    if($hora >= 24){
+                        $hora = $hora-24;
+                        // $diaI = $diaI+1;
+                        $fecha = date("y-m-d",strtotime($fecha."+ 1 day")); 
                     }
+                    $datos['fecha_salida'] = $fecha;
+                    $datos['hora_sal'] = $hora.":00";
+                    array_push($turnos["horarios"][$per]["turnos"], [
+                        "fecha" =>  $datos['fecha_ingreso'],
+                        "hora_entrada" => $datos['hora_ent'],
+                        "hora_salida" =>  $datos['hora_sal'],
+                    ]);
+                    
+                    /* echo "------------<br>";
+                    echo "<pre>";
+                    print_r($datos);
+                    echo "</pre>"; */
+                    if($horas <= 0){
+                        break;
+                    }
+                }
+            }
+            
+            // print_r(json_encode($turnos));
+            /* echo "<pre>";
+            print_r ($turnos);
+            echo "</pre>"; */
+            echo "<table class='table table-bordered'>";
+            echo "<tr class='text-center'>";
+            echo "<td>";
+            echo "</td>";
+                foreach ($turnos["fechas"] as $fecha) {
+                    echo "<td>";
+                    echo $fecha["fecha"];
+                    echo "</td>";
+                }
+            echo "</tr>";
+                foreach ($turnos["horarios"] as $horario) {
+                    echo "<tr class='text-center'>";
+                    echo "<td>";
+                    echo "</td>";
                     echo "</tr>";
                 }
-                //Aqui empieza la iteracion de los turnos de cada persona
-                echo "<tr>";
-                    echo "<td>";
-                    echo " Id persona: ".$per_id[$i];
-                    echo "</td>";
-                for ($j=0; $j < $dias; $j++) {
 
-                    $id_persona = $i + 1;
-                    //Elige horario random
-                    $h = array_rand($horarios, 1);
-                    //Agrega el horario en el objeto
-                    array_push($turnos[$id_persona]["turnos"], $horarios[$h]["nombre"]);
-                    //Si tiene mas de 2 o 4 turnos le agrega 1 dia de descanso
-                    if(count($turnos[$id_persona]["turnos"]) == 2 || count($turnos[$id_persona]["turnos"]) == 4){
-                        $turnos[$id_persona]["dias_descanso"] += 1;
-                    }
-                    //Si tiene un dia de descanso lo agrega de manera aleatoria en los turnos
-                    if($turnos[$id_persona]["dias_descanso"] > 0){
-                        $descanso = array_rand($turnos[$id_persona]["turnos"], 1);
-                        $turnos[$id_persona]["turnos"][$descanso] = "Descanso";
-                        //Resta el dia de descanso agregado
-                        $turnos[$id_persona]["dias_descanso"] -= 1;
-                    }
-                    echo "<td>";
-                    echo $turnos[$id_persona]["turnos"][$j];
-                    echo "</td>";
-      
-                }
-                echo "</tr>";
-            }
             echo "</table>";
-            echo "<pre>";
-            print_r($turnos);
-            echo "</pre>";
+    
+    
         }
 
         public function consultPersonal(){
@@ -116,13 +113,14 @@
             echo '<ul class="list-group mb-3">';
             foreach($consulta as $con){
                 echo '
+                <label class="form-check-label" for="'.$con['per_id'].'">
                 <li class="list-group-item">
-                    <input class="form-check-input" type="checkbox" value="'.$con['per_id'].'" name="per_id[]">
-                    <label class="form-check-label" for="">';
+                    <input class="form-check-input per_id" type="checkbox" value="'.$con['per_id'].'" name="per_id[]" id="'.$con['per_id'].'">
+                    ';
                         echo $con['per_nombres'];
                 echo '
-                    </label>
-                </li>';
+                </li>
+                </label>';
             }
             echo '</ul>';
         }
