@@ -1,25 +1,20 @@
 const app = new Vue({
-    el: '#app',
-    data: {
-        datos: {
-            nombre: '',
-            precio: '',
-        }
-    },
+  el: "#app",
+  data: {
+    diasLaborales: 7,
+    personal: [
+      
+    ],
+    horario: [],
+    turnos: [{id:1, T: "Tarde" }, {id:2, M: "Mañana" }, {id:3, N: "Noche" }],
+  },
+  computed: {},
 
-    methods: {
-        crearBorrador(){
-            localStorage.setItem("borrador", JSON.stringify(this.datos));
-        },
-        eliminarBorrador(){
-            localStorage.removeItem("borrador");
-        }
-    },
+  methods: {
+    
+  },
 
-    created() {
-        let datosGuardados = localStorage.getItem("borrador");
-        if(datosGuardados != null){
-            this.datos = JSON.parse(datosGuardados);
-        }
-    },
+  created() {
+    //console.log(this.personal)
+  },
 });

@@ -45,4 +45,4 @@
                 </div>
             </nav>
             <!-- Page content-->
-            <div class="container-fluid">
+            <div class="container-fluid" id="app">
