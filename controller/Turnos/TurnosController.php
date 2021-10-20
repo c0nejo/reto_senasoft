@@ -24,6 +24,12 @@
             $fecha_i = new DateTime($fecha_inicio);
             $fecha_f = new DateTime($fecha_fin);
             $dias = $fecha_i->diff($fecha_f)->days;
+            $turnos = array();
+            $horarios = [
+                ["nombre" => "Tarde"],
+                ["nombre" => "Noche"],
+                ["nombre" => "Mañana"],
+            ];
             /* $matriz = [
                 ["nombre" => "pepe", "id" => 1],
                 ["nombre" => "juan", "id" => 2],
@@ -41,6 +47,15 @@
             ]; */
             echo "<table class='table table-bordered mt-3'>";
             for ($i=0; $i < count($per_id); $i++) {
+                $turnos[$per_id[$i]] = [
+                    "id_persona" => $per_id[$i],
+                    "horas" => 20,
+                    "turnos" => [
+
+                    ],
+                    "dias_descanso" => 0,
+                ];
+                //Agrega la fecha en el head de la tabla en la primera iteracion
                 if($i == 0){
                     echo "<tr>";
                     for ($j=0; $j <= $dias; $j++) {
@@ -57,20 +72,40 @@
                     }
                     echo "</tr>";
                 }
+                //Aqui empieza la iteracion de los turnos de cada persona
                 echo "<tr>";
                     echo "<td>";
                     echo " Id persona: ".$per_id[$i];
                     echo "</td>";
-
                 for ($j=0; $j < $dias; $j++) {
-                    
+
+                    $id_persona = $i + 1;
+                    //Elige horario random
+                    $h = array_rand($horarios, 1);
+                    //Agrega el horario en el objeto
+                    array_push($turnos[$id_persona]["turnos"], $horarios[$h]["nombre"]);
+                    //Si tiene mas de 2 o 4 turnos le agrega 1 dia de descanso
+                    if(count($turnos[$id_persona]["turnos"]) == 2 || count($turnos[$id_persona]["turnos"]) == 4){
+                        $turnos[$id_persona]["dias_descanso"] += 1;
+                    }
+                    //Si tiene un dia de descanso lo agrega de manera aleatoria en los turnos
+                    if($turnos[$id_persona]["dias_descanso"] > 0){
+                        $descanso = array_rand($turnos[$id_persona]["turnos"], 1);
+                        $turnos[$id_persona]["turnos"][$descanso] = "Descanso";
+                        //Resta el dia de descanso agregado
+                        $turnos[$id_persona]["dias_descanso"] -= 1;
+                    }
                     echo "<td>";
-                    echo " ";
+                    echo $turnos[$id_persona]["turnos"][$j];
                     echo "</td>";
+      
                 }
                 echo "</tr>";
             }
             echo "</table>";
+            echo "<pre>";
+            print_r($turnos);
+            echo "</pre>";
         }
 
         public function consultPersonal(){
@@ -104,7 +139,7 @@
             // include_once '../View/Turnos/consult.php';
         }
     }
-    while ($horas > 0) {
+    /* while ($horas > 0) {
 
         foreach ($personas as $per) {
 
@@ -156,6 +191,6 @@
             print_r($datos);
             array_push($turnos, $datos);
         }
-    }
+    } */
 
 ?>
