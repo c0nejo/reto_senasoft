@@ -3,5 +3,6 @@
 <script src="./js/vue/vue.js"></script>
 <script src="./js/main.js"></script>
 <script src="./js/scripts.js"></script>
+<script src="./js/conejo.js"></script>
 <script src="./js/global.js"></script>
 </html>
