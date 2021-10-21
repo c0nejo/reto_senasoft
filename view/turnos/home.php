@@ -33,9 +33,9 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Generar turnos</button>
             </form>
-            <button type="button" class="btn btn-primary" @click="abrirModal()">
+            <!-- <button type="button" class="btn btn-primary" @click="abrirModal()">
                 Launch demo modal
-            </button>
+            </button> -->
 
             <!-- Modal -->
             <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
