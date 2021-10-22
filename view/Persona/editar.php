@@ -25,7 +25,7 @@
                     <select name="rol" id="rol" class="form-select">
                         <option value="">Seleccione...</option>
                             <?php 
-                                $this->obj->CargaSelected("*", "rol", $dat["esp_id"]);
+                                $this->obj->CargaSelected("*", "rol", $dat["rol_id"]);
                             ?> 
                     </select>
                 </div>

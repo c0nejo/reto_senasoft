@@ -31,6 +31,8 @@
             $intensidad_horaria = $_POST['intensidad_horaria'];
             $esp_id = $_POST['esp_id'];
             $per_id = $_POST['per_id'];
+            $turnos_cantidad = $_POST['turno_dia'];
+            $cantidad_turnos = ($turnos_cantidad * floor(24/$intensidad_horaria));
             //Convierte las fechas aun formato de fecha
             $fecha_i = new DateTime($fecha_inicio);
             $fecha_f = new DateTime($fecha_fin);
@@ -66,11 +68,13 @@
                 ]);
                 $fechac = date("y-m-d",strtotime($fechac."+ 1 day"));
             }
-            
+            //Elije la primera persona al azar
+            $primera_persona = array_rand($per_id, 1);
             //Inicio de algoritmo
             while ($horas > 0) {
                 //Recorre cada una de las personas elegidas en el formulario
-                foreach ($per_id as $per) {
+                for ($i = 0; $i < $cantidad_turnos; $i++) {
+                    $per = $per_id[$primera_persona];
                     $datos = array();
                     $datos['persona'] = $per;
                     $datos['fecha_ingreso'] = $fecha;
@@ -80,13 +84,12 @@
                         $tipo_hora = "pm";
                     }
                     $datos['hora_ent'] = $hora.":00".$tipo_hora;
-                    $horas = $horas-$intensidad_horaria;
                     $hora = $hora+$intensidad_horaria;
                     if($hora >= 24){
                         $hora = $hora-24;
-                        $fecha = date("y-m-d",strtotime($fecha."+ 1 day")); 
                     }
                     $datos['fecha_salida'] = $fecha;
+
                     if($hora > 0 && $hora < 12){
                         $tipo_hora = "am";
                     }else{
@@ -100,10 +103,24 @@
                         "hora_salida" =>  $datos['hora_sal'],
                         "descanso" =>  0,
                     ]);
+
+                    $turnos["horarios"][$per]["horas"] += $intensidad_horaria;
+                    $primera_persona++;
+                    //$hora = $hora-$intensidad_horaria;
+                    if ($per == end($per_id)) {
+                        $primera_persona = 0;
+                    }
                     if($horas <= 0){
                         break;
                     }
                 }
+                $horas = $horas-$intensidad_horaria;
+                if($hora >= 24){
+                    $hora = $hora-24;
+                }
+                $fecha = date("y-m-d",strtotime($fecha."+ 1 day"));
+
+                $hora = $hora+$intensidad_horaria;
             }
             //Agregar descansos
                 //recorre Las personas
@@ -124,6 +141,7 @@
                                 "hora_salida" =>  "",
                                 "descanso" =>  1,
                             ]);
+                            $turnos["horarios"][$horario["id_persona"]]["dias_descanso"] += 1;
                         }
                     }
                 }
@@ -131,8 +149,8 @@
             // print_r(json_encode($turnos));
             /* echo "<pre>";
             print_r ($turnos);
-            echo "</pre>";
-            */
+            echo "</pre>"; */
+            
             echo "<div class=''>";
             echo "<h4 class='display-6'>Turnos generados</h4>";
             echo "<hr>";
@@ -144,7 +162,7 @@
             echo "<td>";
             echo "</td>";
                 foreach ($turnos["fechas"] as $fecha) {
-                    echo "<th>";
+                    echo "<th scope='col'>";
                     echo "Fecha: ".$fecha["fecha"];
                     echo "</th>";
                 }
@@ -163,7 +181,7 @@
                             foreach ($turnos["horarios"][$horario["id_persona"]]["turnos"] as $turno) {
                                 if($turno["fecha"] == $fecha["fecha"]){
                                     if($turno["descanso"] == 0){
-                                        echo "<td>";
+                                        echo "<td scope='col'>";
                                         echo $turno["hora_entrada"]." hasta ".$turno["hora_salida"];
                                         echo "</td>";
                                     }else{
@@ -180,12 +198,20 @@
             echo "</div>";
             echo "<hr>";
             echo "<div>";
+            echo "<a href='".getUrl("Turnos","Turnos","getCrear")."'>";
+            echo "<button class='btn btn-danger ms-3'>";
+            echo "Cancelar";
+            echo "</button>";
+            echo "</a>";
+            echo "<button class='btn btn-warning ms-3' onClick='window.location.reload();'>";
+            echo "Generar nuevamente";
+            echo "</button>";
             echo "<a href='".getUrl("Turnos","Turnos","generarTurnos", false, "ajax")."'>";
-            echo "<button class='btn btn-success'>";
+            echo "<button class='btn btn-success ms-3'>";
             echo "Descargar formato";
             echo "</button>";
             echo "</a>";
-            echo "<a href='".getUrl("Turnos","Turnos","generarTurnos")."'>";
+            echo "<a href='".getUrl("Turnos","Turnos","")."'>";
             echo "<button class='btn btn-primary ms-3'>";
             echo "Guardar y descargar";
             echo "</button>";
