@@ -22,23 +22,29 @@
 
         public function crearTurnos()
         {
+            //Consulta el nombre de las personas en la base de datos
             $sql = "SELECT per_id, per_nombres FROM persona";
             $nombres_per = $this->obj->query($sql);
-
+            //Recupera los datos enviados en el formulario
             $fecha_inicio = $_POST['fecha_inicio'];
             $fecha_fin = $_POST['fecha_fin'];
             $intensidad_horaria = $_POST['intensidad_horaria'];
             $esp_id = $_POST['esp_id'];
             $per_id = $_POST['per_id'];
-
+            //Convierte las fechas aun formato de fecha
             $fecha_i = new DateTime($fecha_inicio);
             $fecha_f = new DateTime($fecha_fin);
+            //Devuelve los dias que hay entre dos fechas
             $dias = $fecha_i->diff($fecha_f)->days;
-    
+            
+            //Muktiplica la cantidad de dias por las 24 horas del dia
             $horas = ($dias+1)*24;
+            //Hora inicial de primer turno
             $hora = 6;
+            //Crea array para guardar el horario y las fechas
             $turnos["horarios"] = array();
             $turnos["fechas"] = array();
+            //Crea un objeto por cada persona
             for ($i=0; $i < count($per_id); $i++) {
                 $turnos["horarios"][$per_id[$i]] = [
                     "id_persona" => $per_id[$i],
@@ -49,7 +55,10 @@
                     "dias_descanso" => 0,
                 ];
             }
+
             $fecha = date("y-m-d",strtotime($fecha_inicio));
+
+            //Guarda todas las fechas que hay entra la fecha de inicio y la fecha fin
             $fechac = date("y-m-d",strtotime($fecha_inicio));
             for($i = 0; $i < $dias+1; $i++){
                 array_push($turnos["fechas"], [
@@ -57,8 +66,10 @@
                 ]);
                 $fechac = date("y-m-d",strtotime($fechac."+ 1 day"));
             }
-        
+            
+            //Inicio de algoritmo
             while ($horas > 0) {
+                //Recorre cada una de las personas elegidas en el formulario
                 foreach ($per_id as $per) {
                     $datos = array();
                     $datos['persona'] = $per;
@@ -73,7 +84,6 @@
                     $hora = $hora+$intensidad_horaria;
                     if($hora >= 24){
                         $hora = $hora-24;
-                        // $diaI = $diaI+1;
                         $fecha = date("y-m-d",strtotime($fecha."+ 1 day")); 
                     }
                     $datos['fecha_salida'] = $fecha;
@@ -90,11 +100,6 @@
                         "hora_salida" =>  $datos['hora_sal'],
                         "descanso" =>  0,
                     ]);
-                    
-                    /* echo "------------<br>";
-                    echo "<pre>";
-                    print_r($datos);
-                    echo "</pre>"; */
                     if($horas <= 0){
                         break;
                     }
@@ -139,21 +144,21 @@
             echo "<td>";
             echo "</td>";
                 foreach ($turnos["fechas"] as $fecha) {
-                    echo "<td>";
+                    echo "<th>";
                     echo "Fecha: ".$fecha["fecha"];
-                    echo "</td>";
+                    echo "</th>";
                 }
             echo "</tr>";
             echo "</thead>";
                 foreach ($turnos["horarios"] as $horario) {
                     echo "<tr class='text-center' style='text-center'>";
-                        echo "<td>";
+                        echo "<th>";
                         foreach($nombres_per as $nombre){
                             if($nombre['per_id'] == $horario["id_persona"]){
                                 echo $nombre['per_nombres'];
                             }
                         }
-                        echo "</td>";
+                        echo "</th>";
                         foreach ($turnos["fechas"] as $fecha) {
                             foreach ($turnos["horarios"][$horario["id_persona"]]["turnos"] as $turno) {
                                 if($turno["fecha"] == $fecha["fecha"]){
@@ -195,7 +200,6 @@
             
             $sheet = new Spreadsheet();
             $excel = $sheet->getActiveSheet();
-           
 
             $letra = "B";
             foreach ($turnos["fechas"] as $fecha) {
