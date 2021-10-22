@@ -305,7 +305,7 @@
             $sql = "SELECT * FROM persona WHERE esp_id = $esp_id";
             $consulta = $this->obj->query($sql);
 
-            echo '<ul class="list-group mb-3">';
+            echo '<ul class="list-group mb-3 mt-3">';
             foreach($consulta as $con){
                 echo '
                 <label class="form-check-label" for="'.$con['per_id'].'">

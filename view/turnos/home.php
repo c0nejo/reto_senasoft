@@ -3,7 +3,7 @@
     <hr>
     <div class="row">
         <div class="col-md-8">
-            <form method="POST" action="<?php echo getUrl("Turnos", "Turnos", "crearTurnos") ?>" id="formulario">
+            <form method="POST" action="<?php echo getUrl("Turnos", "Turnos", "crearTurnos") ?>" id="formulario" onsubmit="return validarForm();">
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Fecha de inicio</label>
@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Personal por turno</label>
-                        <input type="number" class="form-control" name="turno_dia" id="intensidad_horaria">
+                        <input type="number" class="form-control" name="turno_dia" id="personal_turno">
                     </div>
                 </div>
                 <div class="mb-3">
@@ -33,11 +33,17 @@
                 </div>
                 <div>
                     <h5>Elegir personal</h5>
+                    <div id="passwordHelpBlock" class="form-text">
+                     Tenga en cuenta: a la hora de elegir el personal este de debe ser mayor a los turnos que generados a partir de 
+                     la intensidad horaria elegida multiplicado por la cantidad de personas por turno.
+                     Ej. Intensidad horaria: 8, turnos por persona: 2, personal requerido: 8 <br>
+                     De lo contrario no se generara los descansos debidos.
+                    </div>
                     <div id="contenedor-personal">
 
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Generar turnos</button>
+                <button type="submit" class="btn btn-primary mt-2">Generar turnos</button>
             </form> 
             
         </div>
